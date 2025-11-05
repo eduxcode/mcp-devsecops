@@ -1,0 +1,33 @@
+{
+  "models": [
+    {
+      "title": "Llama3 Local DevSecOps",
+      "provider": "ollama",
+      "model": "llama3"
+    },
+    {
+      "title": "Gemini API DevSecOps (optional)",
+      "provider": "google",
+      "model": "gemini-2.5-flash",
+      "apiKey": "GOOGLE_API_KEY"
+    }
+  ],
+  "mcpServers": {
+    "devsecops-helper": {
+      "command": "python3",
+      "args": [
+        "tools/devsecops_mcp.py"
+      ]
+    }
+  },
+  "contextProviders": [
+    {
+      "name": "repo",
+      "path": "~/projetos/devsecops/app/"
+    },
+    {
+      "name": "plano",
+      "path": "~/projetos/devsecops/data/plano_de_trabalho/"
+    }
+  ]
+}
