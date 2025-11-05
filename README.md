@@ -168,12 +168,18 @@ python tools/devsecops_mcp.py analisar kubernetes/policies/limit-cpu.yaml
 
 ---
 
-### 🔹 Monitoramento — Prometheus / ELK
-*(placeholder – expansão futura)*  
-Valida configuração básica:
+### 🔹 Monitoramento — Prometheus / ELK / Grafana
+Valida e analisa configurações de monitoramento:
 ```bash
-python -c "from tools.monitoring_check import check_prometheus_config; print(check_prometheus_config('prometheus.yml'))"
+python tools/monitoring_check.py --config prometheus.yml
+python tools/monitoring_check.py --analyze-logs elk/logstash.conf
+python tools/monitoring_check.py --check-dashboard grafana/dashboard.json
 ```
+
+> 💡 Suporta validação de:
+> - Configurações Prometheus (alertas, regras, targets)
+> - Pipelines Logstash e configurações do Elasticsearch
+> - Dashboards Grafana (métricas, visualizações)
 
 ---
 
@@ -204,19 +210,25 @@ O Continue chama o MCP local, que consulta sua base RAG (OWASP, NIST, CNCF) e re
 | Problema | Solução |
 |-----------|----------|
 | Trivy/ZAP não encontrados | `docker pull aquasec/trivy` e `docker pull owasp/zap2docker-stable` |
-| Relatório vazio | Verifique o PDF do plano |
+| Relatório vazio | Verifique o PDF do plano e logs em `data/logs/` |
 | Ollama inativo | `ollama serve` ou `ollama run llama3` |
 | Erros de permissão | `sudo usermod -aG docker $USER && newgrp docker` |
 | Execução lenta | Ajuste `timeout` nos scripts em `tools/` |
+| Base RAG desatualizada | Execute `python tools/rag_loader.py --update` |
+| Problemas com Docker | Verifique `docker ps` e `docker info` |
+| Erros de memória | Ajuste `MAX_MEMORY` em `tools/devsecops_mcp.py` |
 
 ---
 
 # 🔮 **8. Expansões futuras**
-- SOAR open-source (TheHive / Shuffle)
-- Relatórios PDF automáticos
-- Dashboards Grafana + Prometheus
-- Políticas Kyverno/OPA automáticas
+- SOAR open-source (TheHive / Shuffle / Cortex)
+- Integração com Vulnerability Management (DefectDojo)
+- Relatórios em PDF com gráficos e métricas
+- Dashboards dinâmicos com Grafana
+- Políticas customizadas Kyverno/OPA
 - Métricas OWASP SAMM (maturidade DevSecOps)
+- Integração com GitLab/GitHub Security Center
+- Análise de compliance com CIS Benchmarks
 
 ---
 

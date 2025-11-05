@@ -4,11 +4,15 @@ from pathlib import Path
 import json
 from PyPDF2 import PdfReader
 from tools import sast_check, sca_check, dast_check, container_check, policy_check, monitoring_check, report_gen
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings import OllamaEmbeddings
+from langchain.prompts import PromptTemplate
+from langchain.chains import RetrievalQA
 # Basic paths
 BASE = Path(__file__).resolve().parents[1]
 PLAN = BASE / "data" / "plano_de_trabalho" / "Plano_DevSecOps.pdf"
 REPORT_DIR = BASE / "relatorios"
+DB_DIR = Path.home() / "projetos/devsecops/chromadb"
 REPORT_DIR.mkdir(exist_ok=True)
 
 def read_plan():
@@ -53,10 +57,24 @@ def analisar_arquivo(p):
     else:
         print("Tipo de arquivo não suportado para análise rápida.")
 
+def contextual_answer(query):
+    embeddings = OllamaEmbeddings(model="llama3")
+    db = Chroma(persist_directory=str(DB_DIR), embedding_function=embeddings)
+    retriever = db.as_retriever(search_kwargs={"k": 3})
+
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=None,  # o Continue/Ollama já fornece o LLM ativo
+        chain_type="stuff",
+        retriever=retriever,
+        return_source_documents=True
+    )
+    result = qa_chain({"query": query})
+    return result["result"]
+
 def main():
     if len(sys.argv) < 2:
         print("Uso: python devsecops_mcp.py <acao> [args]")
-        print("Ações: ler-plano, gerar-relatorio, analisar <arquivo>, scan <tool> <target>")
+        print("Ações: ler-plano, gerar-relatorio, analisar <arquivo>, scan <tool> <target>, perguntar <query>")
         return
     cmd = sys.argv[1]
     if cmd == "ler-plano":
@@ -75,13 +93,23 @@ def main():
             tool = sys.argv[2]
             target = sys.argv[3]
             if tool == "sast":
-                print(sast_check.run_bandit(target))
+                print(sast_check.run_bandit(target if len(sys.argv) > 3 else "."))
             elif tool == "container":
-                print(container_check.trivy_scan_image(target))
+                print(container_check.trivy_scan(target))
             elif tool == "dast":
                 print(dast_check.run_zap_scan(target))
             else:
                 print("Tool desconhecida.")
+    elif cmd == "perguntar":
+        if len(sys.argv) < 3:
+            print("Forneça uma pergunta para o assistente.")
+        else:
+            query = " ".join(sys.argv[2:])
+            try:
+                resposta = contextual_answer(query)
+                print(resposta)
+            except Exception as e:
+                print(f"Erro ao processar a pergunta: {e}")
     else:
         print("Comando não reconhecido.")
 
