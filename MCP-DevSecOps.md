@@ -55,7 +55,7 @@ Ele **não interfere diretamente no código-fonte, repositórios ou pipelines da
 
 ## 🐧 **Ubuntu / Debian / WSL**
 ```bash
-git clone https://github.com/seu-repositorio/mcp-devsecops.git
+git clone https://github.com/eduxcode/mcp-devsecops.git
 cd mcp-devsecops
 chmod +x install.sh
 ./install.sh
@@ -69,7 +69,7 @@ ollama pull llama3
 
 ## 🍎 **macOS (Intel ou M1/M2)**
 ```bash
-git clone https://github.com/seu-repositorio/mcp-devsecops.git
+git clone https://github.com/eduxcode/mcp-devsecops.git
 cd mcp-devsecops
 chmod +x install.sh
 ./install.sh
@@ -88,7 +88,7 @@ Instale manualmente:
    - [Ollama (opcional)](https://ollama.com/download)
 2. Clone o projeto:
    ```powershell
-   git clone https://github.com/seu-repositorio/mcp-devsecops.git
+   git clone https://github.com/eduxcode/mcp-devsecops.git
    cd mcp-devsecops
    ```
 3. Execute:
