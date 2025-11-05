@@ -1,5 +1,32 @@
 # 🧠 **MCP DevSecOps Assistant — Guia Completo**
 
+## 📑 **Índice**
+1. [Instalação](#️-1-instalação)
+   - [Ubuntu / Debian / WSL](#-ubuntu--debian--wsl)
+   - [macOS](#-macos-intel-ou-m1m2)
+   - [Windows](#-windows-1011)
+2. [Preparação do ambiente](#-2-preparação-do-ambiente)
+3. [Uso prático](#-3-uso-prático)
+   - [Comandos principais](#-comandos-principais)
+4. [Exemplos por módulo](#-4-exemplos-por-módulo)
+   - [SAST](#-sast--análise-estática)
+   - [SCA](#-sca--dependências)
+   - [DAST](#-dast--teste-dinâmico-owasp-zap)
+   - [Containers](#-containers--segurança-de-imagens-trivy)
+   - [Políticas](#-políticas--kubernetes--opa--kyverno)
+   - [Monitoramento](#-monitoramento--prometheus--elk--grafana)
+5. [Geração de Relatórios](#-5-geração-de-relatórios)
+6. [Integração com Continue.dev](#-6-integração-com-continuedev)
+7. [Dicas rápidas](#-7-dicas-rápidas)
+8. [Expansões futuras](#-8-expansões-futuras)
+9. [Guia de Contribuição](#-9-guia-de-contribuição)
+   - [Diretrizes Gerais](#-diretrizes-gerais)
+   - [Áreas Prioritárias](#-áreas-prioritárias-para-contribuição)
+   - [Processo de Contribuição](#-processo-de-contribuição)
+10. [Créditos e Conformidade](#-10-créditos-e-conformidade)
+
+---
+
 ## 🧩 **Sobre o projeto**
 O **MCP DevSecOps Assistant** é um agente local (Model Context Protocol) projetado para **auxiliar no desenvolvimento e gestão de pipelines DevSecOps End-to-End** de forma **segura, autônoma e independente da aplicação principal**.
 
@@ -232,7 +259,99 @@ O Continue chama o MCP local, que consulta sua base RAG (OWASP, NIST, CNCF) e re
 
 ---
 
-# 🧾 **9. Créditos e Conformidade**
+# � **9. Guia de Contribuição**
+
+## 📋 **Diretrizes Gerais**
+- Todo código deve seguir os princípios de DevSecOps
+- Mantenha o foco em segurança e compliance
+- Priorize ferramentas open-source
+- Documente todas as alterações
+- Mantenha a compatibilidade com execução local
+
+## 🎯 **Áreas Prioritárias para Contribuição**
+
+### 1️⃣ **SOAR Integration (TheHive/Shuffle/Cortex)**
+- Implementar conectores para plataformas SOAR
+- Desenvolver playbooks de automação
+- Integrar com sistemas de alerta
+
+### 2️⃣ **Vulnerability Management**
+- Integração com DefectDojo
+- Sistema de priorização de vulnerabilidades
+- Dashboards de métricas de segurança
+
+### 3️⃣ **Relatórios e Analytics**
+- Geração de relatórios PDF customizáveis
+- Gráficos e visualizações com Grafana
+- Métricas de maturidade OWASP SAMM
+
+### 4️⃣ **Políticas e Compliance**
+- Templates Kyverno/OPA
+- Validadores CIS Benchmark
+- Checagem automática de compliance
+
+### 5️⃣ **Integrações com DevSecOps**
+- GitLab/GitHub Security Center
+- Pipeline templates
+- Validadores de IaC
+
+## 🔄 **Processo de Contribuição**
+
+1. **Preparação**
+   ```bash
+   git clone https://github.com/eduxcode/mcp-devsecops.git
+   git checkout -b feature/sua-feature
+   ```
+
+2. **Desenvolvimento**
+   - Siga o estilo de código existente
+   - Adicione testes unitários
+   - Atualize a documentação
+   - Mantenha a compatibilidade com todos os OS
+
+3. **Testes**
+   ```bash
+   python -m pytest tests/
+   python tools/devsecops_mcp.py test
+   ```
+
+4. **Documentação**
+   - Atualize o README.md
+   - Documente novas funcionalidades
+   - Adicione exemplos de uso
+
+5. **Pull Request**
+   - Descreva claramente as mudanças
+   - Referencie issues relacionadas
+   - Aguarde review do time
+
+## 📝 **Guidelines de Código**
+
+- Use Python 3.10+ com type hints
+- Siga PEP 8 e pratique clean code
+- Documente funções e classes
+- Evite dependências desnecessárias
+- Mantenha a execução local
+
+## 🔒 **Requisitos de Segurança**
+
+- Não exponha dados sensíveis
+- Valide inputs e sanitize outputs
+- Use HTTPS para APIs externas
+- Siga princípios OWASP
+- Mantenha dependências atualizadas
+
+## 🚫 **O que Evitar**
+
+- Código que requer serviços cloud
+- Dependências proprietárias
+- Modificações diretas em pipelines
+- Código não testado
+- Falta de documentação
+
+---
+
+# �🧾 **10. Créditos e Conformidade**
 📘 Desenvolvido por **Davi Soares**  
 Residênte em **DevSecOps — RNP (Pipeline End-to-End com Ferramentas Open-Source)**  
 
