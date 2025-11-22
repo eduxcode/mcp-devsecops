@@ -2,7 +2,6 @@
 import sys
 from pathlib import Path
 import json
-from PyPDF2 import PdfReader
 from tools import sast_check, sca_check, dast_check, container_check, policy_check, monitoring_check, report_gen
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import OllamaEmbeddings
@@ -19,6 +18,11 @@ def read_plan():
     if not PLAN.exists():
         return "[PDF do plano não encontrado. Coloque em data/plano_de_trabalho/]"
     try:
+        try:
+            from PyPDF2 import PdfReader
+        except Exception:
+            return "[PyPDF2 não instalado — coloque o PDF em data/plano_de_trabalho/ ou instale PyPDF2 para extração automática]"
+
         reader = PdfReader(str(PLAN))
         text = ""
         for p in reader.pages:
@@ -30,28 +34,97 @@ def read_plan():
         return f"[Erro lendo PDF: {e}]"
 
 def gerar_relatorio():
-    parts = []
-    parts.append("# Relatório Unificado - DevSecOps Assistant\n")
-    parts.append("## Plano de Trabalho (resumo)\n")
-    parts.append(read_plan()[:4000] + "\n")
-    # Run quick scans if modules available
-    parts.append("## SAST (Bandit - quick)\n")
-    parts.append(sast_check.run_bandit(".")[:8000])
-    parts.append("## Container (Trivy quick)\n")
-    parts.append(container_check.trivy_scan_image("alpine:latest")[:8000])
-    path = REPORT_DIR / "relatorio_unificado.md"
-    path.write_text("\n\n".join(parts), encoding="utf-8")
-    print(f"Relatório gerado: {path}")
+    # Coletar saídas rápidas dos scanners e montar um relatório estruturado
+    findings = []
+    metrics = {}
+    summaries = {}
+
+    # Plano de trabalho resumo
+    summaries['executive_summary'] = read_plan()[:2000]
+
+    # SAST quick
+    try:
+        sast_out = sast_check.run_bandit('.')
+        findings.append({
+            'severity': 'MEDIUM',
+            'title': 'SAST (Bandit) - Quick Scan',
+            'description': sast_out[:4000],
+            'recommendation': 'Reveja os achados do SAST e priorize correções críticas.',
+            'tool': 'SAST',
+            'location': str(Path('.').resolve())
+        })
+        metrics['sast_len'] = len(sast_out)
+    except Exception as e:
+        findings.append({
+            'severity': 'LOW',
+            'title': 'SAST (Bandit) - Falha ao rodar',
+            'description': str(e),
+            'recommendation': 'Verificar instalação do Bandit.',
+            'tool': 'SAST',
+            'location': ''
+        })
+
+    # Container quick (Trivy)
+    try:
+        checker = container_check.ContainerSecurityChecker()
+        trivy_out = checker.trivy_scan_image('alpine:latest')
+        findings.append({
+            'severity': 'HIGH' if 'CRITICAL' in trivy_out or 'HIGH' in trivy_out else 'MEDIUM',
+            'title': 'Container (Trivy) - Quick Scan',
+            'description': trivy_out[:4000],
+            'recommendation': 'Analise as vulnerabilidades e atualize imagens base.',
+            'tool': 'Trivy',
+            'location': 'alpine:latest'
+        })
+        metrics['trivy_len'] = len(trivy_out)
+    except Exception as e:
+        findings.append({
+            'severity': 'LOW',
+            'title': 'Trivy - Falha ao rodar',
+            'description': str(e),
+            'recommendation': 'Verificar instalação do Trivy.',
+            'tool': 'Trivy',
+            'location': ''
+        })
+
+    # DAST quick (se disponível)
+    try:
+        dast_sample = dast_check.run_zap_scan('http://localhost:8080')
+        findings.append({
+            'severity': 'MEDIUM',
+            'title': 'DAST (ZAP) - Quick',
+            'description': str(dast_sample)[:4000],
+            'recommendation': 'Revisar resultados do DAST.',
+            'tool': 'DAST',
+            'location': 'http://localhost:8080'
+        })
+        metrics['dast_len'] = len(str(dast_sample))
+    except Exception:
+        # não interrompe se não houver alvo
+        pass
+
+    # Gerar relatório estruturado usando report_gen
+    try:
+        report = report_gen.create_report('Relatório Unificado - DevSecOps Assistant', findings, metrics, summaries, REPORT_DIR, locale='pt')
+        print(f'Relatório gerado: {REPORT_DIR}')
+    except Exception as e:
+        print(f'Erro ao gerar relatório: {e}')
 
 def analisar_arquivo(p):
     p = Path(p)
     if not p.exists():
         print(f"Arquivo não encontrado: {p}")
         return
-    if p.suffix in [".yml", ".yaml"]:
-        print(policy_check.analyze_yaml(p))
+    if p.suffix in [".yml", ".yaml", ".json"]:
+        print(policy_check.analyze_config(p))
     elif p.name == "Dockerfile":
-        print(container_check.analyze_dockerfile(p))
+        checker = container_check.ContainerSecurityChecker()
+        result = checker.analyze_dockerfile(str(p))
+        print(checker.format_results(result))
+    elif p.name == "docker-compose.yml" or p.name == "docker-compose.yaml":
+        checker = container_check.ContainerSecurityChecker()
+        result = checker.analyze_compose(str(p))
+        print(checker.format_results(result))
     elif p.suffix == ".rego":
         print(policy_check.analyze_rego(p))
     else:
@@ -95,7 +168,8 @@ def main():
             if tool == "sast":
                 print(sast_check.run_bandit(target if len(sys.argv) > 3 else "."))
             elif tool == "container":
-                print(container_check.trivy_scan(target))
+                checker = container_check.ContainerSecurityChecker()
+                print(checker.trivy_scan_image(target))
             elif tool == "dast":
                 print(dast_check.run_zap_scan(target))
             else:

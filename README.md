@@ -94,7 +94,7 @@ ollama pull llama3
 
 ---
 
-## 🍎 **macOS (Intel ou M1/M2)**
+## 🍎 **macOS (Intel ou ARM)**
 ```bash
 git clone https://github.com/eduxcode/mcp-devsecops.git
 cd mcp-devsecops
@@ -163,7 +163,7 @@ O arquivo `.continue/config.json` já está preparado.
 ```bash
 python tools/devsecops_mcp.py scan sast ./src
 ```
-> Varredura com Bandit.  
+> Varredura com Bandit. A integração com SonarQube está em desenvolvimento.
 
 ---
 
@@ -196,17 +196,12 @@ python tools/devsecops_mcp.py analisar kubernetes/policies/limit-cpu.yaml
 ---
 
 ### 🔹 Monitoramento — Prometheus / ELK / Grafana
-Valida e analisa configurações de monitoramento:
-```bash
-python tools/monitoring_check.py --config prometheus.yml
-python tools/monitoring_check.py --analyze-logs elk/logstash.conf
-python tools/monitoring_check.py --check-dashboard grafana/dashboard.json
-```
+*Este módulo está em desenvolvimento.*
 
-> 💡 Suporta validação de:
-> - Configurações Prometheus (alertas, regras, targets)
-> - Pipelines Logstash e configurações do Elasticsearch
-> - Dashboards Grafana (métricas, visualizações)
+A integração futura permitirá validar configurações de monitoramento de:
+- **Prometheus:** Alertas, regras e targets.
+- **ELK:** Pipelines Logstash e configurações do Elasticsearch.
+- **Grafana:** Dashboards, métricas e visualizações.
 
 ---
 
@@ -248,6 +243,7 @@ O Continue chama o MCP local, que consulta sua base RAG (OWASP, NIST, CNCF) e re
 ---
 
 # 🔮 **8. Expansões futuras**
+- Integração com SonarQube para análise de qualidade e segurança de código
 - SOAR open-source (TheHive / Shuffle / Cortex)
 - Integração com Vulnerability Management (DefectDojo)
 - Relatórios em PDF com gráficos e métricas
@@ -259,7 +255,7 @@ O Continue chama o MCP local, que consulta sua base RAG (OWASP, NIST, CNCF) e re
 
 ---
 
-# � **9. Guia de Contribuição**
+# 🛠️ **9. Guia de Contribuição**
 
 ## 📋 **Diretrizes Gerais**
 - Todo código deve seguir os princípios de DevSecOps
@@ -351,7 +347,7 @@ O Continue chama o MCP local, que consulta sua base RAG (OWASP, NIST, CNCF) e re
 
 ---
 
-# �🧾 **10. Créditos e Conformidade**
+# 🧾 **10. Créditos e Conformidade**
 📘 Desenvolvido por **Davi Soares**  
 Residênte em **DevSecOps — RNP (Pipeline End-to-End com Ferramentas Open-Source)**  
 
